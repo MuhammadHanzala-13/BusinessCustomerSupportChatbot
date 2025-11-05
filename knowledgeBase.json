@@ -1,0 +1,102 @@
+[
+  {
+    "question": "What are your business hours?",
+    "answer": "Our business hours are Monday to Friday, from 9 AM to 6 PM."
+  },
+  {
+    "question": "Where is your office located?",
+    "answer": "Our head office is located in Karachi, Pakistan. We also provide online support for remote customers."
+  },
+  {
+    "question": "How can I contact customer support?",
+    "answer": "You can contact customer support by emailing support@yourbusiness.com or calling +92-300-1234567."
+  },
+  {
+    "question": "Do you offer delivery services?",
+    "answer": "Yes, we offer nationwide delivery. Orders are usually delivered within 3 to 5 business days."
+  },
+  {
+    "question": "What payment methods do you accept?",
+    "answer": "We accept payments through credit cards, debit cards, Easypaisa, JazzCash, and bank transfers."
+  },
+  {
+    "question": "How can I track my order?",
+    "answer": "Once your order is shipped, you’ll receive an email or SMS with the tracking number and courier details."
+  },
+  {
+    "question": "Can I return or exchange a product?",
+    "answer": "Yes, products can be returned or exchanged within 7 days if they are unused and in original packaging."
+  },
+  {
+    "question": "What is your refund policy?",
+    "answer": "Refunds are processed within 5 to 7 business days after we receive the returned item."
+  },
+  {
+    "question": "Do you provide discounts or offers?",
+    "answer": "We frequently run promotional offers. Subscribe to our newsletter or follow our social media for updates."
+  },
+  {
+    "question": "How do I create an account?",
+    "answer": "Go to our website and click on 'Sign Up'. Fill in your details, verify your email, and your account will be ready."
+  },
+  {
+    "question": "I forgot my password. What should I do?",
+    "answer": "Click on 'Forgot Password' on the login page, enter your email, and follow the instructions to reset it."
+  },
+  {
+    "question": "Can I change my shipping address after placing an order?",
+    "answer": "Yes, you can update your address within 12 hours of placing the order by contacting our support team."
+  },
+  {
+    "question": "Do you ship internationally?",
+    "answer": "Currently, we only ship within Pakistan. International shipping will be available soon."
+  },
+  {
+    "question": "Do you offer same-day delivery?",
+    "answer": "Yes, same-day delivery is available in Karachi for orders placed before 12 PM."
+  },
+  {
+    "question": "Can I cancel my order?",
+    "answer": "You can cancel your order within 12 hours of purchase by contacting customer service."
+  },
+  {
+    "question": "Do you have a warranty policy?",
+    "answer": "Yes, most products come with a 6-month warranty covering manufacturing defects."
+  },
+  {
+    "question": "How can I update my profile information?",
+    "answer": "Log in to your account, go to 'My Profile', and update your personal details anytime."
+  },
+  {
+    "question": "What should I do if I receive a damaged product?",
+    "answer": "Please report the issue to our support team within 24 hours with photos of the damaged item."
+  },
+  {
+    "question": "Is my personal information secure?",
+    "answer": "Yes, your data is encrypted and securely stored following international data protection standards."
+  },
+  {
+    "question": "Do you provide bulk or wholesale orders?",
+    "answer": "Yes, we offer bulk discounts. Contact sales@yourbusiness.com for quotations."
+  },
+  {
+    "question": "Do I need to create an account to place an order?",
+    "answer": "You can place orders as a guest, but we recommend creating an account for easier tracking and returns."
+  },
+  {
+    "question": "Do you have a mobile app?",
+    "answer": "Our mobile app is coming soon for both Android and iOS. Stay tuned for updates!"
+  },
+  {
+    "question": "How can I subscribe to your newsletter?",
+    "answer": "You can subscribe from the bottom section of our homepage to get exclusive offers and updates."
+  },
+  {
+    "question": "What happens if my payment fails?",
+    "answer": "If payment fails, please retry after a few minutes or try another payment method. Contact support if it persists."
+  },
+  {
+    "question": "How can I give feedback or suggestions?",
+    "answer": "We value your feedback! Send your suggestions to feedback@yourbusiness.com."
+  }
+]
