@@ -33,4 +33,3 @@ env/
 
 # Your specific files to ignore
 test.py
-dataBase.py
