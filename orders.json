@@ -1,0 +1,33 @@
+[
+    {
+        "customer_name": "user2",
+        "address": "korangi",
+        "contact_number": "12345600003",
+        "item": "Smartwatch",
+        "price": 7500
+    },
+    {
+        "customer_name": "user1",
+        "address": "MA jinnah road,karachi",
+        "contact_number": "+923178787878",
+        "item": "Wireless Headphones",
+        "price": 4500,
+        "timestamp": "2025-11-08T15:34:59.110122"
+    },
+    {
+        "customer_name": "user1",
+        "address": "zatoon ashraf IT park oppo city school",
+        "contact_number": "+923178750343",
+        "item": "Wireless Headphones",
+        "price": 4500,
+        "timestamp": "2025-11-08T15:47:53.933141"
+    },
+    {
+        "customer_name": "muhammad hanzala",
+        "address": "zatoon ashraf IT park opp city school.",
+        "contact_number": "03178732342",
+        "item": "Wireless Headphones",
+        "price": 4500,
+        "timestamp": "2025-11-08T16:10:16.446661"
+    }
+]
