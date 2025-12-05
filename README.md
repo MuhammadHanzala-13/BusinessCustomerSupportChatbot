@@ -67,4 +67,4 @@ This project is an AI-powered customer support chatbot designed to assist busine
 - `requirements.txt`: List of Python dependencies.
 
 ## Developed By
-**Muhammad Hanzala**
+**~Muhammad Hanzala**
