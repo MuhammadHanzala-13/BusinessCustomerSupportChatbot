@@ -29,5 +29,29 @@
         "item": "Wireless Headphones",
         "price": 4500,
         "timestamp": "2025-11-08T16:10:16.446661"
+    },
+    {
+        "customer_name": "hz",
+        "address": "khatarnak gali",
+        "contact_number": "12345678900",
+        "item": "Bluetooth Speaker",
+        "price": 3800,
+        "timestamp": "2025-11-11T15:18:43.152765"
+    },
+    {
+        "customer_name": "hz",
+        "address": "area-khatarnak",
+        "contact_number": "+913141714771",
+        "item": "Wireless Headphones",
+        "price": 4500,
+        "timestamp": "2025-11-11T21:16:01.964804"
+    },
+    {
+        "customer_name": "muhammad hanzala",
+        "address": "Landhi No 05, Area 4-A, Karachi",
+        "contact_number": "+923178750470",
+        "item": "USB-C Charger",
+        "price": 1200,
+        "timestamp": "2025-11-15T14:15:20.954891"
     }
 ]

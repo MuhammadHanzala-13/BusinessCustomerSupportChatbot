@@ -8,6 +8,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 HF_API_KEY = os.getenv("HF_API_KEY")
 DB_NAME = "dataBase.db"
 KB_FILE = "knowledgeBase.json"
+RAG_DIR = "rags"  # New: Folder for per-user RAG stores
 
 def init_db():
     """Create leads table with correct columns."""
@@ -36,3 +37,11 @@ def save_lead(name, email, user_message, bot_response):
     )
     conn.commit()
     conn.close()
+# ... existing code ...
+
+def init_rag_dir():
+    os.makedirs(RAG_DIR, exist_ok=True)
+
+# Call this in init_db() or at app start
+init_db()
+init_rag_dir()  # Add this line after init_db()

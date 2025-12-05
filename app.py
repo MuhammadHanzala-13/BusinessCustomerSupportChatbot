@@ -4,10 +4,10 @@ from pydantic import BaseModel
 import google.generativeai as genai
 import requests, json, sqlite3, os, difflib
 from config import GEMINI_API_KEY, HF_API_KEY, KB_FILE, DB_NAME, init_db, save_lead
+from rag import extract_url, scrape_website, build_rag_for_user, retrieve_from_rag  # Import RAG helpers
 
 app = FastAPI(title="Customer Support Chatbot with Ordering")
 genai.configure(api_key=GEMINI_API_KEY)
-
 init_db()
 
 # --------------------------
@@ -27,20 +27,30 @@ def search_knowledge_base(query):
         print("KB Error:", e)
     return None
 
-def get_gemini_response(query):
+def get_gemini_response(query, email=None):
+    context = retrieve_from_rag(email, query) if email else None
+    if context:
+        prompt = f"Answer only based on this website context: {context}. Query: {query}. Do not use general knowledge."
+    else:
+        prompt = query
     try:
-        model = genai.GenerativeModel("gemini-2.5-flash")  # FIXED MODEL NAME
-        response = model.generate_content(query)
+        model = genai.GenerativeModel("gemini-2.5-flash")  # Keep as in original
+        response = model.generate_content(prompt)
         return response.text
     except Exception as e:
         print("Gemini error:", e)
         return None
 
-def get_huggingface_response(query):
+def get_huggingface_response(query, email=None):
+    context = retrieve_from_rag(email, query) if email else None
+    if context:
+        prompt = f"Answer only based on this website context: {context}. Query: {query}. Do not use general knowledge."
+    else:
+        prompt = query
     try:
         url = "https://api-inference.huggingface.co/models/MiniMaxAI/MiniMax-M2"
         headers = {"Authorization": f"Bearer {HF_API_KEY}"}
-        payload = {"inputs": query}
+        payload = {"inputs": prompt}
         response = requests.post(url, headers=headers, json=payload, timeout=10)
         if response.status_code == 200:
             return response.json()[0]["generated_text"]
@@ -95,30 +105,38 @@ class OrderRequest(BaseModel):
 @app.post("/chat")
 def chat(req: ChatRequest):
     query = req.message.lower()
-    kb_answer = search_knowledge_base(query)
-
-    if kb_answer:
-        response = kb_answer
+    email = req.email  # Use for RAG key
+    # Check for URL to trigger customization
+    url = extract_url(req.message)
+    if url:
+        scraped = scrape_website(url)
+        if scraped and build_rag_for_user(email, scraped):
+            response = "I've scraped and customized to your website! Now ask me anything specific to it."
+        else:
+            response = "Couldn't access or process that website—please try a valid URL."
+        action = None
     else:
-        # Try Gemini → HF → KB fallback → Hardcoded
-        response = get_gemini_response(query)
-        if not response:
-            response = get_huggingface_response(query)
-        if not response:
-            response = "I'm having trouble connecting right now, but our team is here to help! Call +92-300-1234567 or email support@yourbusiness.com"
-
+        # Normal flow, but with RAG if exists
+        kb_answer = search_knowledge_base(query)  # Keep for non-custom users
+        if kb_answer:
+            response = kb_answer
+        else:
+            response = get_gemini_response(query, email)
+            if not response:
+                response = get_huggingface_response(query, email)
+            if not response:
+                response = "I'm having trouble connecting right now, but our team is here to help! Call +92-300-1234567 or email support@yourbusiness.com"
+        # Existing order logic...
+        action = None
+        if is_order_related(query):
+            product_list = "\n".join([f"{p['id']}. {p['name']} - Rs {p['price']}" for p in PRODUCTS])
+            response = (
+                "Here's our product list:\n\n"
+                f"{product_list}\n\n"
+                "Please reply with the Product ID to place your order!"
+            )
+            action = "show_products"
     save_lead(req.name, req.email, req.message, response)
-
-    action = None
-    if is_order_related(query):
-        product_list = "\n".join([f"{p['id']}. {p['name']} - Rs {p['price']}" for p in PRODUCTS])
-        response = (
-            "Here's our product list:\n\n"
-            f"{product_list}\n\n"
-            "Please reply with the Product ID to place your order!"
-        )
-        action = "show_products"
-
     return {"response": response, "action": action}
 
 @app.post("/order")
