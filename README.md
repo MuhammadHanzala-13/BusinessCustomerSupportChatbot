@@ -66,5 +66,5 @@ This project is an AI-powered customer support chatbot designed to assist busine
 - `dataBase.py`: Database initialization and management.
 - `requirements.txt`: List of Python dependencies.
 
-## License
-This project is open-source and available for use and modification.
+## Developed By
+**Muhammad Hanzala**
