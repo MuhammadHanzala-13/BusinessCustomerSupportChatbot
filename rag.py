@@ -55,7 +55,7 @@ def scrape_website(url: str) -> str:
     except Exception as e:
         print(f"Playwright failed ({e}). Falling back to requests...")
 
-    # 2. Fallback
+    # 2.  Fallback
     return scrape_with_requests(url)
 
 def build_rag_for_user(email: str, scraped_text: str) -> bool:
