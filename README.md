@@ -72,7 +72,6 @@ Access the application in your browser (usually at `http://localhost:8501`).
 
 ## Deployment to Streamlit Cloud
 
-For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
 Quick steps:
 1. Push your code to GitHub
@@ -93,7 +92,7 @@ Quick steps:
 - `requirements.txt`: List of Python dependencies.
 - `packages.txt`: System-level dependencies for Streamlit Cloud.
 - `.streamlit/config.toml`: Streamlit configuration.
-- `DEPLOYMENT.md`: Detailed deployment guide.
+
 
 ## Developed By
 **~Muhammad Hanzala**
