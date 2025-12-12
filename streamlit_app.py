@@ -206,7 +206,7 @@ if st.session_state.order_mode:
                     else:
                         st.error("Order failed. Try again.")
 
-# ---- Normal Chat Input (Only if NOT in order mode) ----
+# --- Normal Chat Input (Only if NOT in order mode) ----
 if not st.session_state.order_mode:
     user_input = st.chat_input("Type your message here...")
     if user_input:
