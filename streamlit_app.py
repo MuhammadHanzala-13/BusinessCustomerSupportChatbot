@@ -7,7 +7,7 @@ from config import DB_NAME  # Assuming config has DB_NAME
 API_URL = "http://127.0.0.1:8000/chat"
 ORDER_URL = "http://127.0.0.1:8000/order"
 
-st.set_page_config(page_title="AI Business Support Care Bot", page_icon="🤖", layout="wide")
+st.set_page_config(page_title="AI Business Support Care Bot", layout="wide")
 
 # ---- Custom CSS for Interactive Design ----
 st.markdown("""
@@ -173,6 +173,7 @@ if st.session_state.order_mode:
         {"id": 3, "name": "Bluetooth Speaker", "price": 3800},
         {"id": 4, "name": "USB-C Charger", "price": 1200},
         {"id": 5, "name": "Gaming Mouse", "price": 3100},
+        {"id": 6, "name": "HP laptop elitebook prox", "price": 150000},
     ]
     with st.form(key="order_form"):
         item_id = st.selectbox(
@@ -234,7 +235,7 @@ if not st.session_state.order_mode:
                 message = f"{user_input} (Purpose: {purpose})" if purpose else user_input
                 payload = {"name": name, "email": email, "message": message}
                 try:
-                    response = requests.post(API_URL, json=payload, timeout=30)
+                    response = requests.post(API_URL, json=payload, timeout=60)
                     if response.status_code == 200:
                         data = response.json()
                         bot_reply = data.get("response", "No reply")
@@ -245,6 +246,6 @@ if not st.session_state.order_mode:
                             st.session_state.order_mode = True
                     else:
                         st.session_state.history[-1] = ("bot", "Server error. Try again.")
-                except:
-                    st.session_state.history[-1] = ("bot", "No internet or server down. Try later.")
+                except Exception as e:
+                    st.session_state.history[-1] = ("bot", f"Connection error: {str(e)}")
                 chat_placeholder.markdown(render_chat(), unsafe_allow_html=True)

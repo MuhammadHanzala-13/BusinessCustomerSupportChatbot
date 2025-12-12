@@ -46,6 +46,18 @@ This project is an AI-powered customer support chatbot designed to assist busine
 
 ## Usage
 
+### Option 1: Merged Streamlit App (Recommended for Deployment)
+
+Run the single-file Streamlit app that includes all backend functionality:
+
+```bash
+streamlit run app_streamlit.py
+```
+
+Access the application in your browser (usually at `http://localhost:8501`).
+
+### Option 2: Two-Server Architecture (Original)
+
 1. Start the Backend Server:
    ```bash
    uvicorn app:app --reload
@@ -58,13 +70,30 @@ This project is an AI-powered customer support chatbot designed to assist busine
 
 3. Access the application in your browser (usually at `http://localhost:8501`).
 
+## Deployment to Streamlit Cloud
+
+For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
+
+Quick steps:
+1. Push your code to GitHub
+2. Go to [share.streamlit.io](https://share.streamlit.io)
+3. Connect your repository
+4. Set main file to `app_streamlit.py`
+5. Add your API keys in Secrets (TOML format)
+6. Deploy!
+
 ## Project Structure
 - `app.py`: The FastAPI backend handling API requests.
-- `streamlit_app.py`: The Streamlit frontend interface.
+- `streamlit_app.py`: The Streamlit frontend interface (two-server architecture).
+- `app_streamlit.py`: **NEW** - Merged single-file Streamlit app (recommended for deployment).
 - `rag.py`: Handles website scraping and RAG implementation.
 - `backend.py`: Helper functions for backend logic.
 - `dataBase.py`: Database initialization and management.
+- `config.py`: Configuration and environment variables.
 - `requirements.txt`: List of Python dependencies.
+- `packages.txt`: System-level dependencies for Streamlit Cloud.
+- `.streamlit/config.toml`: Streamlit configuration.
+- `DEPLOYMENT.md`: Detailed deployment guide.
 
 ## Developed By
 **~Muhammad Hanzala**

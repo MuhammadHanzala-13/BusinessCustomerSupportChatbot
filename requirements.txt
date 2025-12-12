@@ -3,10 +3,9 @@ requests
 google-generativeai
 python-dotenv
 huggingface_hub
-fastapi
-uvicorn
-python-multipart
 beautifulsoup4
 sentence-transformers
 faiss-cpu
 numpy
+lxml
+playwright

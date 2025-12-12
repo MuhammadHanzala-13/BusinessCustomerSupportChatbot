@@ -53,5 +53,13 @@
         "item": "USB-C Charger",
         "price": 1200,
         "timestamp": "2025-11-15T14:15:20.954891"
+    },
+    {
+        "customer_name": "ibad",
+        "address": "house 80",
+        "contact_number": "03147714174",
+        "item": "Wireless Headphones",
+        "price": 4500,
+        "timestamp": "2025-12-09T14:17:52.948793"
     }
 ]

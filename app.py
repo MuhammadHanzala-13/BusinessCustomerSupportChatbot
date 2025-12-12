@@ -33,13 +33,25 @@ def get_gemini_response(query, email=None):
         prompt = f"Answer only based on this website context: {context}. Query: {query}. Do not use general knowledge."
     else:
         prompt = query
-    try:
-        model = genai.GenerativeModel("gemini-2.5-flash")  # Keep as in original
-        response = model.generate_content(prompt)
-        return response.text
-    except Exception as e:
-        print("Gemini error:", e)
-        return None
+    # List of models to try in order
+    GEMINI_MODELS = [
+        "gemini-2.5-flash",
+        "gemini-flash-latest",
+        "gemini-pro-latest",
+        "gemini-2.0-flash-exp",
+    ]
+    
+    for model_name in GEMINI_MODELS:
+        try:
+            model = genai.GenerativeModel(model_name)
+            response = model.generate_content(prompt)
+            if response and response.text:
+                return response.text
+        except Exception as e:
+            print(f"Gemini model {model_name} failed: {e}")
+            continue
+            
+    return None
 
 def get_huggingface_response(query, email=None):
     context = retrieve_from_rag(email, query) if email else None

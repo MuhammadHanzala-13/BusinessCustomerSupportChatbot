@@ -1,4 +1,4 @@
-# Quick Start Guide - Customer Support Chatbot
+# Quick Start Guide  for both locally and deployment - Customer Support Chatbot
 
 ## For Streamlit Cloud Deployment
 
@@ -23,7 +23,7 @@ git push origin main
 
 ### Step 4: Add Secrets
 
-In the Secrets section, paste this (with your actual keys):
+In the Secrets section paste this (with your actual keys):
 
 ```toml
 GEMINI_API_KEY = "your_actual_gemini_api_key_here"
