@@ -64,7 +64,7 @@ def build_rag_for_user(email: str, scraped_text: str) -> bool:
         return False
     # Split into chunks
     chunks = [scraped_text[i:i+500] for i in range(0, len(scraped_text), 500)]
-    # Embed
+    # Embedding
     embedder = SentenceTransformer('all-MiniLM-L6-v2')  # Lightweight model
     embeddings = embedder.encode(chunks)
     # FAISS index
