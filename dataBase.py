@@ -3,7 +3,7 @@ import sqlite3
 from config import DB_NAME
 
 def init_db():
-    """Create leads table with correct columns."""
+    """Create leads table with correct columns name ."""
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     c.execute("""
