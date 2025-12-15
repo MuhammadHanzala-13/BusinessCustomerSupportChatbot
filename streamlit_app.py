@@ -2,9 +2,14 @@ import time
 import sqlite3
 import json
 import difflib
+import logging
 import google.generativeai as genai
 import streamlit as st
 from sentence_transformers import SentenceTransformer
+
+# Configure Logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 from config import DB_NAME, GEMINI_API_KEY, HF_API_KEY, KB_FILE, RAG_DIR
 from rag import scrape_website, build_rag_for_user, retrieve_from_rag
 from database import save_lead, save_order
@@ -180,22 +185,34 @@ def search_knowledge_base(query):
         if match:
             for item in kb:
                 if item["question"] == match[0]:
+                    logger.info(f"KB: Found match for '{query}'")
                     return item["answer"]
     except Exception as e:
-        print("KB Error:", e)
+        logger.error(f"KB Error: {e}")
     return None
 
 def get_gemini_response(query, email=None):
-    context = retrieve_from_rag(email, query, embedder=embedder) if email else None
+    logger.info(f"Gemini: Start. Query='{query}'")
+    context = None
+    if email:
+        logger.info(f"Gemini: Retrieving RAG for {email}")
+        context = retrieve_from_rag(email, query, embedder=embedder)
+
     prompt = f"Answer based on context: {context}. Query: {query}" if context else query
     
     models = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-pro-latest", "gemini-2.0-flash-exp"]
     for m in models:
         try:
+            logger.info(f"Gemini: Trying model {m}...")
             model = genai.GenerativeModel(m)
             out = model.generate_content(prompt)
-            if out and out.text: return out.text
-        except: continue
+            if out and out.text: 
+                logger.info(f"Gemini: Success with {m}")
+                return out.text
+        except Exception as e: 
+            logger.error(f"Gemini: Error with {m}: {e}")
+            continue
+    logger.warning("Gemini: All models failed.")
     return None
 
 def get_huggingface_response(query, email=None):
@@ -203,11 +220,13 @@ def get_huggingface_response(query, email=None):
     return None
 
 def process_chat(name, email, message):
+    logger.info(f"ProcessChat: Message='{message}'")
     query = message.lower()
     
     # 0. Order Intent Check
     keywords = ["order", "buy", "purchase", "delivery", "book", "cart", "item", "product", "place order"]
     if any(word in query for word in keywords):
+        logger.info("ProcessChat: Order intent detected.")
         product_list = "\n".join([f"{p['id']}. {p['name']} - Rs {p['price']}" for p in PRODUCTS])
         response = (
             "Here's our product list:\n\n"
