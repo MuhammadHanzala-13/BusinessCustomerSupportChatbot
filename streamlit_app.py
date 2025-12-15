@@ -128,15 +128,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ---- Company Logo ----
-# Check if logo exists locally, otherwise fallback to text or placeholder
-logo_path = "DARK RAS IT Logo 2.png"
-if os.path.exists(logo_path):
-    st.image(logo_path, width=200, use_container_width=False)
-else:
-    # Fallback to a placeholder or just the text header
-    st.markdown("## RAS InnovaTech")
-
 # ---- Header ----
 st.title("Business Support ChatBot")
 st.subheader("AI-powered ChatBot with Personalization")
