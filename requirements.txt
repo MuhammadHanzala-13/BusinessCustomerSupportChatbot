@@ -4,7 +4,8 @@ google-generativeai
 python-dotenv
 huggingface_hub
 beautifulsoup4
-sentence-transformers
+sentence-transformers>=3.0.0
+transformers>=4.40.0
 faiss-cpu
 numpy
 lxml
