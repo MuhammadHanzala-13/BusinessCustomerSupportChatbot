@@ -1,11 +1,35 @@
-import streamlit as st
-import requests
 import time
 import sqlite3
-from config import DB_NAME  # Assuming config has DB_NAME
+import json
+import difflib
+import google.generativeai as genai
+import streamlit as st
+from sentence_transformers import SentenceTransformer
+from config import DB_NAME, GEMINI_API_KEY, HF_API_KEY, KB_FILE, RAG_DIR
+from rag import scrape_website, build_rag_for_user, retrieve_from_rag
+from database import save_lead, save_order
 
-API_URL = "http://127.0.0.1:8000/chat"
-ORDER_URL = "http://127.0.0.1:8000/order"
+# Configure AI
+genai.configure(api_key=GEMINI_API_KEY)
+
+# Products Data (Shared)
+PRODUCTS = [
+    {"id": 1, "name": "Wireless Headphones", "price": 4500},
+    {"id": 2, "name": "Smartwatch", "price": 7500},
+    {"id": 3, "name": "Bluetooth Speaker", "price": 3800},
+    {"id": 4, "name": "USB-C Charger", "price": 1200},
+    {"id": 5, "name": "Gaming Mouse", "price": 3100},
+    {"id": 6, "name": "HP laptop elitebook prox", "price": 150000},
+]
+
+# Cached Embedder
+@st.cache_resource(show_spinner=False)
+def load_embedder():
+    return SentenceTransformer('all-MiniLM-L6-v2')
+
+# Pre-load to avoid delay on first chat
+with st.spinner('Initializing AI...'):
+    embedder = load_embedder()
 
 st.set_page_config(page_title="AI Business Support ChatBot", layout="wide")
 
@@ -105,8 +129,13 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---- Company Logo ----
-# Replace with your actual logo URL or local path, e.g., 'https://your-company.com/logo.png'
-st.image("DARK RAS IT Logo 2.png", width=200, use_container_width=False)  # Updated parameter
+# Check if logo exists locally, otherwise fallback to text or placeholder
+logo_path = "DARK RAS IT Logo 2.png"
+if os.path.exists(logo_path):
+    st.image(logo_path, width=200, use_container_width=False)
+else:
+    # Fallback to a placeholder or just the text header
+    st.markdown("## RAS InnovaTech")
 
 # ---- Header ----
 st.title("Business Support ChatBot")
@@ -150,6 +179,83 @@ if "order_mode" not in st.session_state:
 if "link_provided" not in st.session_state:
     st.session_state.link_provided = False
 
+# ---- Logic Functions (Direct execution for Cloud Stability) ----
+def search_knowledge_base(query):
+    try:
+        with open(KB_FILE, "r", encoding="utf-8") as f:
+            kb = json.load(f)
+        questions = [item["question"] for item in kb]
+        match = difflib.get_close_matches(query, questions, n=1, cutoff=0.6)
+        if match:
+            for item in kb:
+                if item["question"] == match[0]:
+                    return item["answer"]
+    except Exception as e:
+        print("KB Error:", e)
+    return None
+
+def get_gemini_response(query, email=None):
+    context = retrieve_from_rag(email, query, embedder=embedder) if email else None
+    prompt = f"Answer based on context: {context}. Query: {query}" if context else query
+    
+    models = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-pro-latest", "gemini-2.0-flash-exp"]
+    for m in models:
+        try:
+            model = genai.GenerativeModel(m)
+            out = model.generate_content(prompt)
+            if out and out.text: return out.text
+        except: continue
+    return None
+
+def get_huggingface_response(query, email=None):
+    # Simplified fallback
+    return None
+
+def process_chat(name, email, message):
+    query = message.lower()
+    
+    # 0. Order Intent Check
+    keywords = ["order", "buy", "purchase", "delivery", "book", "cart", "item", "product", "place order"]
+    if any(word in query for word in keywords):
+        product_list = "\n".join([f"{p['id']}. {p['name']} - Rs {p['price']}" for p in PRODUCTS])
+        response = (
+            "Here's our product list:\n\n"
+            f"{product_list}\n\n"
+            "Please reply with the Product ID to place your order!"
+        )
+        # Background save
+        save_lead(name, email, message, response)
+        return response, "show_products"
+
+    # 1. URL Scraping
+    if "http" in message:
+        import re
+        url = re.search(r'(https?://[^\s]+)', message)
+        if url:
+            url = url.group(0)
+            with st.spinner("Analyzing website..."):
+                scraped = scrape_website(url)
+                if scraped and build_rag_for_user(email, scraped, embedder=embedder):
+                    resp = "Website processed! Ask me questions about it."
+                    save_lead(name, email, message, resp)
+                    return resp, None
+                else:
+                    return "Could not process website.", None
+
+    # 2. Knowledge Base
+    kb = search_knowledge_base(query)
+    if kb: 
+        save_lead(name, email, message, kb)
+        return kb, None
+
+    # 3. Gemini
+    gemini = get_gemini_response(query, email)
+    if gemini: 
+        save_lead(name, email, message, gemini)
+        return gemini, None
+
+    return "I'm having trouble connecting. Please try again later.", None
+
 # ---- Chat Display Function ----
 def render_chat():
     chat_html = "<div class='chat-container'>"
@@ -167,19 +273,12 @@ chat_placeholder.markdown(render_chat(), unsafe_allow_html=True)
 # ---- Order Form (Only when order_mode is True) ----
 if st.session_state.order_mode:
     st.subheader("Place Your Order")
-    products = [
-        {"id": 1, "name": "Wireless Headphones", "price": 4500},
-        {"id": 2, "name": "Smartwatch", "price": 7500},
-        {"id": 3, "name": "Bluetooth Speaker", "price": 3800},
-        {"id": 4, "name": "USB-C Charger", "price": 1200},
-        {"id": 5, "name": "Gaming Mouse", "price": 3100},
-        {"id": 6, "name": "HP laptop elitebook prox", "price": 150000},
-    ]
+    # Use globally defined PRODUCTS
     with st.form(key="order_form"):
         item_id = st.selectbox(
             "Select Product",
-            options=[p["id"] for p in products],
-            format_func=lambda x: f"ID {x}: {next(p['name'] for p in products if p['id'] == x)} - Rs {next(p['price'] for p in products if p['id'] == x)}"
+            options=[p["id"] for p in PRODUCTS],
+            format_func=lambda x: f"ID {x}: {next(p['name'] for p in PRODUCTS if p['id'] == x)} - Rs {next(p['price'] for p in PRODUCTS if p['id'] == x)}"
         )
         address = st.text_input("Delivery Address", placeholder="House #, Street, City")
         contact_number = st.text_input("Contact Number", placeholder="+92xxxxxxxxxx")
@@ -188,23 +287,24 @@ if st.session_state.order_mode:
             if not address or not contact_number:
                 st.error("Please fill all fields!")
             else:
-                payload = {
-                    "name": name or "Guest",
-                    "address": address,
-                    "contact_number": contact_number,
-                    "item_id": item_id
-                }
+                product = next((p for p in PRODUCTS if p["id"] == item_id), None)
                 with st.spinner("Placing your order..."):
-                    response = requests.post(ORDER_URL, json=payload)
-                    if response.status_code == 200:
-                        reply = response.json().get("response", "Order placed!")
-                        st.session_state.history.append(("bot", reply))
-                        st.success("Order placed successfully!")
-                        st.session_state.order_mode = False
-                        time.sleep(2)
-                        st.rerun()
-                    else:
-                        st.error("Order failed. Try again.")
+                    # Direct DB Save
+                    save_order({
+                        "customer_name": name or "Guest",
+                        "address": address,
+                        "contact_number": contact_number,
+                        "item": product["name"],
+                        "price": product["price"],
+                        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+                    })
+                    
+                    reply = f"Order confirmed for {product['name']}! We'll contact you soon on {contact_number}."
+                    st.session_state.history.append(("bot", reply))
+                    st.success("Order placed successfully!")
+                    st.session_state.order_mode = False
+                    time.sleep(2)
+                    st.rerun()
 
 # --- Normal Chat Input (Only if NOT in order mode) ----
 if not st.session_state.order_mode:
@@ -231,21 +331,20 @@ if not st.session_state.order_mode:
                 st.session_state.history.append(("bot", "Thinking..."))
                 chat_placeholder.markdown(render_chat(), unsafe_allow_html=True)
                 
-                # Call API (append purpose if provided)
+                # Call Logic Directly (No API)
                 message = f"{user_input} (Purpose: {purpose})" if purpose else user_input
-                payload = {"name": name, "email": email, "message": message}
+                
                 try:
-                    response = requests.post(API_URL, json=payload, timeout=60)
-                    if response.status_code == 200:
-                        data = response.json()
-                        bot_reply = data.get("response", "No reply")
-                        action = data.get("action")
-                        # Remove typing + add real reply
-                        st.session_state.history[-1] = ("bot", bot_reply)
-                        if action == "show_products":
-                            st.session_state.order_mode = True
-                    else:
-                        st.session_state.history[-1] = ("bot", "Server error. Try again.")
+                    bot_reply, action = process_chat(name, email, message)
+                    
+                    st.session_state.history[-1] = ("bot", bot_reply)
+                    if action == "show_products":
+                        st.session_state.order_mode = True
+                        
                 except Exception as e:
-                    st.session_state.history[-1] = ("bot", f"Connection error: {str(e)}")
+                    st.session_state.history[-1] = ("bot", f"Processing error: {str(e)}")
+                
                 chat_placeholder.markdown(render_chat(), unsafe_allow_html=True)
+                # Force rerun to show updated UI state
+                if action == "show_products":
+                    st.rerun()

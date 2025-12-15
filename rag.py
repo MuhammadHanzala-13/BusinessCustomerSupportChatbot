@@ -58,14 +58,15 @@ def scrape_website(url: str) -> str:
     # 2.  Fallback
     return scrape_with_requests(url)
 
-def build_rag_for_user(email: str, scraped_text: str) -> bool:
+def build_rag_for_user(email: str, scraped_text: str, embedder=None) -> bool:
     """Build and save a RAG index for the user based on scraped text."""
     if not scraped_text:
         return False
     # Split into chunks
     chunks = [scraped_text[i:i+500] for i in range(0, len(scraped_text), 500)]
     # Embedding
-    embedder = SentenceTransformer('all-MiniLM-L6-v2')  # Lightweight model
+    if embedder is None:
+        embedder = SentenceTransformer('all-MiniLM-L6-v2')  # Lightweight model
     embeddings = embedder.encode(chunks)
     # FAISS index
     dim = embeddings.shape[1]
@@ -79,7 +80,7 @@ def build_rag_for_user(email: str, scraped_text: str) -> bool:
         json.dump(chunks, f)
     return True
 
-def retrieve_from_rag(email: str, query: str, top_k=3) -> str:
+def retrieve_from_rag(email: str, query: str, top_k=3, embedder=None) -> str:
     """Retrieve relevant chunks from the user's RAG index."""
     user_dir = os.path.join(RAG_DIR, email.replace('@', '_'))
     if not os.path.exists(os.path.join(user_dir, 'faiss_index')):
@@ -89,7 +90,8 @@ def retrieve_from_rag(email: str, query: str, top_k=3) -> str:
     with open(os.path.join(user_dir, 'chunks.json'), 'r') as f:
         chunks = json.load(f)
     # Embed query
-    embedder = SentenceTransformer('all-MiniLM-L6-v2')
+    if embedder is None:
+        embedder = SentenceTransformer('all-MiniLM-L6-v2')
     query_emb = embedder.encode([query])
     # Search
     _, indices = index.search(np.array(query_emb), top_k)
