@@ -7,7 +7,7 @@ from config import DB_NAME  # Assuming config has DB_NAME
 API_URL = "http://127.0.0.1:8000/chat"
 ORDER_URL = "http://127.0.0.1:8000/order"
 
-st.set_page_config(page_title="AI Business Support Care Bot", layout="wide")
+st.set_page_config(page_title="AI Business Support ChatBot", layout="wide")
 
 # ---- Custom CSS for Interactive Design ----
 st.markdown("""
@@ -109,8 +109,8 @@ st.markdown("""
 st.image("DARK RAS IT Logo 2.png", width=200, use_container_width=False)  # Updated parameter
 
 # ---- Header ----
-st.title("RAS InnovaTech Support Bot")
-st.subheader("AI-powered Bot with Personalization")
+st.title("Business Support ChatBot")
+st.subheader("AI-powered ChatBot with Personalization")
 
 # ---- Sidebar for Previous Chat Sessions ----
 with st.sidebar:
