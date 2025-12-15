@@ -9,6 +9,7 @@ HF_API_KEY = os.getenv("HF_API_KEY")
 DB_NAME = "dataBase.db"
 KB_FILE = "knowledgeBase.json"
 RAG_DIR = "rags"  # New: Folder for per-user RAG stores
+ORDERS_FILE = "orders.json"
 
 def init_db():
     """Create leads table with correct columns."""

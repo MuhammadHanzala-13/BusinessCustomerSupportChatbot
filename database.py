@@ -1,6 +1,8 @@
 #dataBase.py
 import sqlite3
-from config import DB_NAME
+import json
+import os
+from config import DB_NAME, ORDERS_FILE
 
 def init_db():
     """Create leads table with correct columns name ."""
@@ -29,3 +31,16 @@ def save_lead(name, email, user_message, bot_response):
     )
     conn.commit()
     conn.close()
+
+def save_order(order_details):
+    """Save order to JSON file."""
+    orders = []
+    if os.path.exists(ORDERS_FILE):
+        with open(ORDERS_FILE, "r", encoding="utf-8") as f:
+            try:
+                orders = json.load(f)
+            except:
+                orders = []
+    orders.append(order_details)
+    with open(ORDERS_FILE, "w", encoding="utf-8") as f:
+        json.dump(orders, f, indent=4)
